@@ -33,6 +33,11 @@ namespace Compression{
             float** initMatrix();
             void computeDCT();
             void quantify();
+            void writeComment(ofstream* out);
+            void writeQuantanizationTable(ofstream* out, char identificator, int table[64]);
+            void writeSOF0Marker(ofstream* out, char precision, char numberOfComponents);
+            char* generateSOF0ComponentInfo(char id, char verticalSampling,
+                char horizontalSampling, char quantTableIndex);
     };
 }
 

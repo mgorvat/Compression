@@ -1,4 +1,4 @@
-    #include "JPEG.h"
+#include "JPEG.h"
 
 //luminosity quantanization table
 int lqt[]{2, 1, 1, 2, 3, 5, 6, 7,
@@ -9,7 +9,7 @@ int lqt[]{2, 1, 1, 2, 3, 5, 6, 7,
           3, 4, 7, 8, 10, 12, 14, 11,
           6, 8, 9, 10, 12, 15, 14, 12,
           9, 11, 11, 12, 13, 12, 12, 12};
-int lqti[64];
+int lqtz[64];
 
 
 
@@ -22,11 +22,9 @@ int cqt[]{2, 2, 3, 6, 12, 12, 12, 12,
           12, 12, 12, 12, 12, 12, 12, 12,
           12, 12, 12, 12, 12, 12, 12, 12,
           12, 12, 12, 12, 12, 12, 12, 12};
-int cqti[64];
+int cqtz[64];
 
 using namespace Compression;
-
-
 
 
 //TODO: Comment this
@@ -80,7 +78,7 @@ void zigzag(int* matr, int* imatr){
 
 JPEG::JPEG(RGBPixelSet *pxs){
     yuvSet = RGBSetToYUVSet(pxs);
-    zigzag(lqt, lqti); zigzag(cqt, cqti);
+    zigzag(lqt, lqtz); zigzag(cqt, cqtz);
     separateComponents();
     computeDCT();
     quantify();
@@ -172,78 +170,50 @@ void JPEG::writeJPEG(string filename){
     wBuf = 0xffd8;
     writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
 
-    if(comment.size() > 0){
-        wBuf = 0xfffe;
-        out.write(invert((char*)&wBuf, sizeof(wBuf)), sizeof(wBuf));
-        short size = comment.size() + 2;
-        writeInvert(&out, (char*)&size, sizeof(size));
-        for(int i = 0; i < comment.size(); i++)out.write(&comment[i], sizeof(char));
-    }
+    writeComment(&out);
+    writeQuantanizationTable(&out, (char)0, lqtz);//Writing luminosity quantanization table
+    writeQuantanizationTable(&out, (char)1, cqtz);//Writing chromaticity quantanization table
+    writeSOF0Marker(&out, 8, 3);
+    //Number of components can't be changet yet. What is precision I don't understand. Usually it is 8.
 
-    //Writing luminosity quantanization table
-    wBuf = 0xffdb;
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    //Writing DQT marker
 
-    wBuf = 0x0043;//Size of marker
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));//Writing size of marker
-    cBuf = 0;//One byte size, 0 identificator
-    out.write(&cBuf, sizeof(cBuf));
-    for(int i = 0; i < 64; i++){
-        cBuf = (char)lqti[i];
-        out.write(&cBuf, sizeof(char));
-    }
-    //Writing chromaticity quantanization table
-    wBuf = 0xffdb;
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    //Writing DQT marker
-
-    wBuf = 0x0043;//Size of marker
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));//Writing size of marker
-    cBuf = 1;//One byte size, 1 identificator
-    out.write(&cBuf, sizeof(cBuf));
-    for(int i = 0; i < 64; i++){
-        cBuf = (char)cqti[i];
-        out.write(&cBuf, sizeof(char));
-    }
-
-    //Writing SOF0 marker
-    wBuf = 0xffc0;
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    wBuf = 17;//Marker size. Now we have only one possyble value
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    cBuf = 8;//Data precision
-    out.write(&cBuf, sizeof(cBuf));
-    wBuf = yuvSet->getWidth();
-//    wBuf = 16;
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    wBuf = yuvSet->getHeight();
-//    wBuf = 16;
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    //Writing height and width of image
-    cBuf = 3;//Writing number of components
-    out.write(&cBuf, sizeof(cBuf));
-
-    cBuf = 1;
-    out.write(&cBuf, sizeof(cBuf));
-    cBuf = (1<<4) + 1;
-    out.write(&cBuf, sizeof(cBuf));
-    cBuf = 0;
-    out.write(&cBuf, sizeof(cBuf));
-
-    cBuf = 2;
-    out.write(&cBuf, sizeof(cBuf));
-    cBuf = (1<<4) + 1;
-    out.write(&cBuf, sizeof(cBuf));
-    cBuf = 1;
-    out.write(&cBuf, sizeof(cBuf));
-
-    cBuf = 3;
-    out.write(&cBuf, sizeof(cBuf));
-    cBuf = (1<<4) + 1;
-    out.write(&cBuf, sizeof(cBuf));
-    cBuf = 1;
-    out.write(&cBuf, sizeof(cBuf));
+//    //Writing SOF0 marker
+//    wBuf = 0xffc0;
+//    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
+//    wBuf = 17;//Marker size. Now we have only one possyble value
+//    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
+//    cBuf = 8;//Data precision
+//    out.write(&cBuf, sizeof(cBuf));
+//    wBuf = yuvSet->getWidth();
+////    wBuf = 16;
+//    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
+//    wBuf = yuvSet->getHeight();
+////    wBuf = 16;
+//    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
+//    //Writing height and width of image
+//    cBuf = 3;//Writing number of components
+//    out.write(&cBuf, sizeof(cBuf));
+//
+//    cBuf = 1;
+//    out.write(&cBuf, sizeof(cBuf));
+//    cBuf = (1<<4) + 1;
+//    out.write(&cBuf, sizeof(cBuf));
+//    cBuf = 0;
+//    out.write(&cBuf, sizeof(cBuf));
+//
+//    cBuf = 2;
+//    out.write(&cBuf, sizeof(cBuf));
+//    cBuf = (1<<4) + 1;
+//    out.write(&cBuf, sizeof(cBuf));
+//    cBuf = 1;
+//    out.write(&cBuf, sizeof(cBuf));
+//
+//    cBuf = 3;
+//    out.write(&cBuf, sizeof(cBuf));
+//    cBuf = (1<<4) + 1;
+//    out.write(&cBuf, sizeof(cBuf));
+//    cBuf = 1;
+//    out.write(&cBuf, sizeof(cBuf));
 
     //DHT marker. DC table
     wBuf = 0xffc4;
@@ -386,4 +356,69 @@ void JPEG::writeJPEG(string filename){
     wBuf = 0xffd9;
     writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
     out.close();
+}
+
+void JPEG::writeComment(ofstream *out){
+    if(comment.size() > 0){
+        unsigned short wBuf = 0xfffe;
+        out->write(invert((char*)&wBuf, sizeof(wBuf)), sizeof(wBuf));
+        short size = comment.size() + 2;
+        writeInvert(out, (char*)&size, sizeof(size));
+        for(int i = 0; i < comment.size(); i++)out->write(&comment[i], sizeof(char));
+    }
+}
+
+void JPEG::writeQuantanizationTable(ofstream* out, char identificator, int table[64]){
+    unsigned short wBuf = 0xffdb;
+    char cBuf;
+    writeInvert(out, (char*)&wBuf, sizeof(wBuf));
+    //Writing DQT marker
+
+    wBuf = 0x0043;//Size of marker
+    writeInvert(out, (char*)&wBuf, sizeof(wBuf));//Writing size of marker
+    out->write(&identificator, sizeof(identificator));
+    for(int i = 0; i < 64; i++){
+        cBuf = (char)table[i];
+        out->write(&cBuf, sizeof(char));
+    }
+}
+
+void JPEG::writeSOF0Marker(ofstream* out, char precision, char numberOfComponents){
+    unsigned short wBuf = 0xffc0;
+    writeInvert(out, (char*)&wBuf, sizeof(wBuf));
+    wBuf = 17;//Marker size. It's value is 17 for 3 components
+    writeInvert(out, (char*)&wBuf, sizeof(wBuf));
+    out->write(&precision, sizeof(precision));
+    wBuf = yuvSet->getWidth();
+    writeInvert(out, (char*)&wBuf, sizeof(wBuf));
+    wBuf = yuvSet->getHeight();
+    writeInvert(out, (char*)&wBuf, sizeof(wBuf));
+    //Writing height and width of image
+    out->write(&numberOfComponents, sizeof(numberOfComponents));
+
+    char* ComponentInfo;
+    /*
+        For componrnts info. Now only 3 components JPEGs are availible and for
+        samping only value 1 can be used. Should be fixed later.
+    */
+    int horizontalSampling[]{1, 1, 1};
+    int verticalSampling[]{1, 1, 1};
+    int quantTable[]{0, 1, 1};//Methods for controlling this not supported yet. It's temporary solution.
+    for(int i = 0; i < numberOfComponents; i++){
+        ComponentInfo = generateSOF0ComponentInfo(i+1, horizontalSampling[i],
+            verticalSampling[i], quantTable[i]);
+        for(int j = 0; j < 3; j++)
+            out->write(&ComponentInfo[j], sizeof(ComponentInfo[j]));
+        delete ComponentInfo;
+    }
+}
+
+
+char* JPEG::generateSOF0ComponentInfo(char id,
+        char horizontalSampling, char verticalSampling, char quantTableIndex){
+    char *res = new char[3];
+    res[0] = id;
+    res[1] = (horizontalSampling<<4) + verticalSampling;
+    res[2] = quantTableIndex;
+    return res;
 }

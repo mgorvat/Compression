@@ -32,6 +32,8 @@ int main(){
 //            else cout<<"Unknown command.\n";
 //        }
 //    }
+
+
     BMP* bmp;
     bmp = BMP::readImage("test.bmp");
     RGBPixelSet set = bmp->getRGBPixelSet();
