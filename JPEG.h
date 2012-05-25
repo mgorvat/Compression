@@ -38,6 +38,8 @@ namespace Compression{
             void writeSOF0Marker(ofstream* out, char precision, char numberOfComponents);
             char* generateSOF0ComponentInfo(char id, char verticalSampling,
                 char horizontalSampling, char quantTableIndex);
+            void writeDHTMarker(ofstream* out, char htNumber, char htType, vector<pair<pair<int, int>, int> >* codes);
+            void writeSOSMarker();
     };
 }
 

@@ -176,135 +176,13 @@ void JPEG::writeJPEG(string filename){
     writeSOF0Marker(&out, 8, 3);
     //Number of components can't be changet yet. What is precision I don't understand. Usually it is 8.
 
+    vector<pair<pair<int, int>, int> >* codes;
 
-//    //Writing SOF0 marker
-//    wBuf = 0xffc0;
-//    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-//    wBuf = 17;//Marker size. Now we have only one possyble value
-//    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-//    cBuf = 8;//Data precision
-//    out.write(&cBuf, sizeof(cBuf));
-//    wBuf = yuvSet->getWidth();
-////    wBuf = 16;
-//    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-//    wBuf = yuvSet->getHeight();
-////    wBuf = 16;
-//    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-//    //Writing height and width of image
-//    cBuf = 3;//Writing number of components
-//    out.write(&cBuf, sizeof(cBuf));
-//
-//    cBuf = 1;
-//    out.write(&cBuf, sizeof(cBuf));
-//    cBuf = (1<<4) + 1;
-//    out.write(&cBuf, sizeof(cBuf));
-//    cBuf = 0;
-//    out.write(&cBuf, sizeof(cBuf));
-//
-//    cBuf = 2;
-//    out.write(&cBuf, sizeof(cBuf));
-//    cBuf = (1<<4) + 1;
-//    out.write(&cBuf, sizeof(cBuf));
-//    cBuf = 1;
-//    out.write(&cBuf, sizeof(cBuf));
-//
-//    cBuf = 3;
-//    out.write(&cBuf, sizeof(cBuf));
-//    cBuf = (1<<4) + 1;
-//    out.write(&cBuf, sizeof(cBuf));
-//    cBuf = 1;
-//    out.write(&cBuf, sizeof(cBuf));
-
-    //DHT marker. DC table
-    wBuf = 0xffc4;
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    wBuf = 31;
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    cBuf = 0x00;//HT information
-    out.write(&cBuf, sizeof(cBuf));
-    vector<pair<pair<int, int>, int> >* dcTable = dcHuffTable(0);
-    vector<int>* numbs = numbers(dcTable);
-    for(int i = 0; i < 16; i++){
-        if(i < numbs->size()) cBuf = (*numbs)[i];
-        else cBuf = 0;
-        out.write(&cBuf, sizeof(cBuf));
-    }
-    for(int i = 0; i < dcTable->size(); i++){
-        cBuf = (*dcTable)[i].second;
-        out.write(&cBuf, sizeof(cBuf));
-    }
-    delete numbs;
-    delete dcTable;
-
-    //DHT marker. Luminosity AC table.
-    wBuf = 0xffc4;
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    wBuf = 181;//Size. 181 for AC
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    cBuf = 0x10;//HT information
-    out.write(&cBuf, sizeof(cBuf));
-    vector<pair<pair<int, int>, int> >* table;
-    table = makeJPEGTable(0);
-    numbs = numbers(table);
-    for(int i = 0; i < 16; i++){
-        if(i < numbs->size()) cBuf = (*numbs)[i];
-        else cBuf = 0;
-        out.write(&cBuf, sizeof(cBuf));
-    }
-    for(int i = 0; i < table->size(); i++){
-        cBuf = (*table)[i].second;
-        out.write(&cBuf, sizeof(cBuf));
-    }
-    delete table;
-    delete numbs;
-
-
-
-    //DHT marker. DC table
-    wBuf = 0xffc4;
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    wBuf = 31;
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    cBuf = 0x01;//HT information
-    out.write(&cBuf, sizeof(cBuf));
-    dcTable = dcHuffTable(1);
-    numbs = numbers(dcTable);
-    for(int i = 0; i < 16; i++){
-        if(i < numbs->size()) cBuf = (*numbs)[i];
-        else cBuf = 0;
-        out.write(&cBuf, sizeof(cBuf));
-    }
-    for(int i = 0; i < dcTable->size(); i++){
-        cBuf = (*dcTable)[i].second;
-        out.write(&cBuf, sizeof(cBuf));
-    }
-    delete numbs;
-    delete dcTable;
-
-
-
-
-    //DHT marker. Chrominance AC table.
-    wBuf = 0xffc4;
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    wBuf = 181;//Size. 181 for AC
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    cBuf = 0x11;//HT information
-    out.write(&cBuf, sizeof(cBuf));
-    table = makeJPEGTable(1);
-    numbs = numbers(table);
-    for(int i = 0; i < 16; i++){
-        if(i < numbs->size()) cBuf = (*numbs)[i];
-        else cBuf = 0;
-        out.write(&cBuf, sizeof(cBuf));
-    }
-    for(int i = 0; i < table->size(); i ++){
-        cBuf = (*table)[i].second;
-        out.write(&cBuf, sizeof(cBuf));
-    }
-    delete table;
-    delete numbs;
-
+    //Writing of 4 DCT markers. It can be better. Fix it.
+    codes = dcHuffTable(0); writeDHTMarker(&out, 0, 0, codes); delete codes;
+    codes = makeJPEGTable(0); writeDHTMarker(&out, 0, 1, codes); delete codes;
+    codes = dcHuffTable(1); writeDHTMarker(&out, 1, 0, codes); delete codes;
+    codes = makeJPEGTable(1); writeDHTMarker(&out, 1, 1, codes); delete codes;
 
     wBuf = 0xffda;
     writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
@@ -413,7 +291,6 @@ void JPEG::writeSOF0Marker(ofstream* out, char precision, char numberOfComponent
     }
 }
 
-
 char* JPEG::generateSOF0ComponentInfo(char id,
         char horizontalSampling, char verticalSampling, char quantTableIndex){
     char *res = new char[3];
@@ -421,4 +298,31 @@ char* JPEG::generateSOF0ComponentInfo(char id,
     res[1] = (horizontalSampling<<4) + verticalSampling;
     res[2] = quantTableIndex;
     return res;
+}
+
+
+void JPEG::writeDHTMarker(ofstream* out, char htNumber, char htType, vector<pair<pair<int, int>, int> >* codes){
+    unsigned short wBuf = 0xffc4;
+    writeInvert(out, (char*)&wBuf, sizeof(wBuf));
+    wBuf = 19 + codes->size();//Size of marker. Equals 19 + number of codes.
+    writeInvert(out, (char*)&wBuf, sizeof(wBuf));
+
+    char cBuf = htNumber + (htType<<4);//Byte for HT information
+    out->write(&cBuf, sizeof(char));
+    vector<int>* numbs = numbers(codes);//Number of elements for each code length
+    for(int i = 0; i < 16; i++){//Writing code lenghtes
+        if(i < numbs->size()) cBuf = (*numbs)[i];
+        else cBuf = 0;
+        out->write(&cBuf, sizeof(cBuf));
+    }
+    for(int i = 0; i < codes->size(); i++){//Writing code values
+        cBuf = (*codes)[i].second;
+        out->write(&cBuf, sizeof(cBuf));
+    }
+    delete numbs;
+}
+
+
+void JPEG::writeSOSMarker(){
+
 }

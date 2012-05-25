@@ -1,6 +1,6 @@
 #include "Utils.h"
 
-vector<pair<int, int> >* seqCodind(int seq[64]){
+vector<pair<int, int> >* zeroSeqCodind(int seq[64]){
     int ind = 1, ct = 0;
     int zerBlocks = 0;
     vector<pair<int, int> > *res = new vector<pair<int, int> >();
@@ -20,7 +20,6 @@ vector<pair<int, int> >* seqCodind(int seq[64]){
     if(ct != 0)res->push_back(pair<int, int> (0, 0));
     return res;
 }
-
 
 void writeAC(pair<int, int> code, CodeWriter* writer, HuffmanCoder<pair<int, int> >* coder){
     if(code == pair<int, int>(0, 0)){writer->writeCode(coder->getCode(&code)); return; }
@@ -79,7 +78,7 @@ int encodeMatrix(float mtr[64], CodeWriter* writer, HuffmanCoder<pair<int, int> 
                   HuffmanCoder<int>* DCcoder, int prevDc){
     encodeDC(mtr[0] - prevDc, writer, DCcoder);
     int* iMtr = toIntMtr(mtr);
-    vector<pair<int, int> > * vec = seqCodind(iMtr);
+    vector<pair<int, int> > * vec = zeroSeqCodind(iMtr);
     for(int i = 0; i < vec->size(); i++){
         writeAC((*vec)[i], writer, ACcoder);
     }
