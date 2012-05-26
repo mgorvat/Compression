@@ -193,50 +193,23 @@ void JPEG::writeJPEG(string filename){
     writeSOSMarker(&out, components);
     delete components;
 
-//    wBuf = 12;
-//    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-//    cBuf = 3;
-//    out.write(&cBuf, sizeof(cBuf));
-//    cBuf = 1;//Y
-//    out.write(&cBuf, sizeof(cBuf));
-//    cBuf = 0x00;
-//    out.write(&cBuf, sizeof(cBuf));
+//    CodeWriter writer(out);
+//    HuffmanCoder<int>* lCoder = initCoder(0);
+//    HuffmanCoder<int>* cCoder = initCoder(1);
+//    HuffmanCoder<int>* lDCCoder = initDCCoder(0);
+//    HuffmanCoder<int>* cDCCoder = initDCCoder(1);
 //
-//    cBuf = 2;//Cb
-//    out.write(&cBuf, sizeof(cBuf));
-//    cBuf = 0x11;
-//    out.write(&cBuf, sizeof(cBuf));
 //
-//    cBuf = 3;//Cr
-//    out.write(&cBuf, sizeof(cBuf));
-//    cBuf = 0x11;
-//    out.write(&cBuf, sizeof(cBuf));
+//    int prevY = 512, prevCb = 512, prevCr = 512;
+//    for(int i = matrixCountInHeight - 1; i >= 0; i--){
+//        for(int j = 0; j < matrixCountInWidth; j++){
+//            prevY = encodeMatrix(YDCTMatrix[i * matrixCountInWidth + j], &writer, lCoder, lDCCoder, prevY);
+//            prevCb = encodeMatrix(CbDCTMatrix[i * matrixCountInWidth + j], &writer, cCoder, cDCCoder, prevCb);
+//            prevCr = encodeMatrix(CrDCTMatrix[i * matrixCountInWidth + j], &writer, cCoder, cDCCoder, prevCr);
 //
-//    cBuf = 0;
-//    out.write(&cBuf, sizeof(cBuf));
-//    cBuf = 0x3f;
-//    out.write(&cBuf, sizeof(cBuf));
-//    cBuf = 0;
-//    out.write(&cBuf, sizeof(cBuf));//Three ignorable bytes
-
-
-    CodeWriter writer(out);
-    HuffmanCoder<pair<int, int> >* lCoder = initCoder(0);
-    HuffmanCoder<pair<int, int> >* cCoder = initCoder(1);
-    HuffmanCoder<int>* lDCCoder = initDCCoder(0);
-    HuffmanCoder<int>* cDCCoder = initDCCoder(1);
-
-
-    int prevY = 512, prevCb = 512, prevCr = 512;
-    for(int i = matrixCountInHeight - 1; i >= 0; i--){
-        for(int j = 0; j < matrixCountInWidth; j++){
-            prevY = encodeMatrix(YDCTMatrix[i * matrixCountInWidth + j], &writer, lCoder, lDCCoder, prevY);
-            prevCb = encodeMatrix(CbDCTMatrix[i * matrixCountInWidth + j], &writer, cCoder, cDCCoder, prevCb);
-            prevCr = encodeMatrix(CrDCTMatrix[i * matrixCountInWidth + j], &writer, cCoder, cDCCoder, prevCr);
-
-        }
-    }
-    writer.flush();
+//        }
+//    }
+//    writer.flush();
 
 
     wBuf = 0xffd9;
@@ -319,11 +292,11 @@ void JPEG::writeDHTMarker(ofstream* out, char htNumber, char htType, vector<pair
     out->write(&cBuf, sizeof(char));
     vector<int>* numbs = numbers(codes);//Number of elements for each code length
     for(int i = 0; i < 16; i++){//Writing code lenghtes
-        if(i < numbs->size()) cBuf = (*numbs)[i];
+        if(i < (int)numbs->size()) cBuf = (*numbs)[i];
         else cBuf = 0;
         out->write(&cBuf, sizeof(cBuf));
     }
-    for(int i = 0; i < codes->size(); i++){//Writing code values
+    for(int i = 0; i < (int)codes->size(); i++){//Writing code values
         cBuf = (*codes)[i].second;
         out->write(&cBuf, sizeof(cBuf));
     }
@@ -348,5 +321,65 @@ void JPEG::writeSOSMarker(ofstream* out, vector<ComponentInfo>* components){
 
     char magicBytes[]{0x0, 0x3f, 0x0};//Some bytes. I didn't find what it means yet. Should be rewrited.
     for(int i = 0; i < 3; i++) out->write(&(magicBytes[i]), sizeof(magicBytes[i]));//Writing magic bytes
+    vector<int> prevVals(components->size(), 512);
+    vector<ComponentsEncoders* > encoders;
+    for(int i = 0; i < components->size(); i++){
+        ComponentsEncoders* encoder = new ComponentsEncoders(initDCCoder((*components)[i].dcTable),
+                                                            initCoder((*components)[i].acTable));
+        encoders.push_back(encoder);
+    }
+    CodeWriter writer(*out);
 
+    float** componentsArray[3];
+    componentsArray[0] = YDCTMatrix;
+    componentsArray[1] = CbDCTMatrix;
+    componentsArray[2] = CrDCTMatrix;
+    cout<<"begin\n";
+    for(int i = matrixCountInHeight - 1; i >= 0; i--){
+        for(int j = 0; j < matrixCountInWidth; j++){
+            for(int k = 0; k < components->size(); k++){
+                cout<<componentsArray[k][i * matrixCountInWidth + j][0]<<"\n";
+                cout<<YDCTMatrix[i * matrixCountInWidth + j][0]<<"\n";
+                cout<<CbDCTMatrix[i * matrixCountInWidth + j][0]<<"\n";
+                cout<<CrDCTMatrix[i * matrixCountInWidth + j][0]<<"\n";
+
+                prevVals[k] = encodeMatrix(componentsArray[k][i * matrixCountInWidth + j],
+                                           &writer, encoders[k], prevVals[k]);
+
+            }
+        }
+    }
+    writer.flush();
+}
+
+
+int JPEG::encodeMatrix(float mtr[64], CodeWriter* writer, ComponentsEncoders* encoders, int prevDc){
+    encodeDC(mtr[0] - prevDc, writer, encoders->dcEncoder);
+    int* iMtr = toIntMtr(mtr);
+    vector<pair<int, int> > * vec = zeroSeqCodind(iMtr);
+    int buf;
+    for(int i = 0; i < vec->size(); i++){
+        buf = ((*vec)[i].second<<4) + (*vec)[i].first;
+        writeAC(buf, writer, encoders->dcEncoder);
+    }
+    delete iMtr;
+    return mtr[0];
+}
+
+void JPEG::encodeDC(int numb, CodeWriter* writer, HuffmanCoder<int>* DCcoder){
+    pair<int, int> p = getCode(numb);
+    int buf = p.first;
+    pair<int, int> p2 = DCcoder->getCode(&buf);
+    writer->writeCode(p2);
+    writer->writeCode(p);
+}
+
+void JPEG::writeAC(int code, CodeWriter* writer, HuffmanCoder<int>* coder){
+    if(code == 0){writer->writeCode(coder->getCode(&code)); return; }
+    if(code == 15<<4){writer->writeCode(coder->getCode(&code)); return; }
+    int buf;
+    pair<int, int> RZ = getCode(code % 0xf);
+    buf = (code<<4) + RZ.first;
+    writer->writeCode(coder->getCode(&buf));
+    writer->writeCode(RZ);
 }

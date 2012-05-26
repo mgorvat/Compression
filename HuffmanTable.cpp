@@ -100,7 +100,7 @@ HuffmanCoder<int>* initDCCoder(int index){
     return res;
 }
 
-HuffmanCoder<pair<int, int> >* initCoder(int index){
+HuffmanCoder<int>* initCoder(int index){
     pair<int, int>* codeTable;
     pair<int, int> eof;
     pair<int, int> zrl;
@@ -114,18 +114,17 @@ HuffmanCoder<pair<int, int> >* initCoder(int index){
         eof = ceof;
         zrl = czrl;
     }
-    vector <pair<int, int> > vals;
+    vector <int> vals;
     vector <pair<int, int> > codes;
-    codes.push_back(eof); vals.push_back(pair<int, int> (0,0));
-    codes.push_back(zrl); vals.push_back(pair<int, int> (0,15));
+    codes.push_back(eof); vals.push_back(0);
+    codes.push_back(zrl); vals.push_back(15<<4);
     for(int i = 0; i < 10; i++){
         for(int j = 0; j < 16; j++){
-            pair<int, int> p(i + 1, j);
-            vals.push_back(p);
+            vals.push_back((j<<4) + i + 1);
             codes.push_back(codeTable[10 * j + i]);
         }
     }
-    HuffmanCoder<pair<int, int> >* coder = new HuffmanCoder<pair<int, int> >(&vals, &codes);
+    HuffmanCoder<int>* coder = new HuffmanCoder<int>(&vals, &codes);
     return coder;
 }
 

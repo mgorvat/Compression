@@ -22,6 +22,17 @@ namespace Compression{
         char dcTable;
     };
 
+    struct ComponentsEncoders{
+        ComponentsEncoders(HuffmanCoder<int>* dcEncoder,
+                          HuffmanCoder<int>* acEncoder): dcEncoder(dcEncoder), acEncoder(acEncoder) {}
+        ~ComponentsEncoders(){
+            delete dcEncoder;
+            delete acEncoder;
+        }
+        HuffmanCoder<int>* dcEncoder;
+        HuffmanCoder<int>* acEncoder;
+    };
+
     class JPEG{
         public:
             JPEG(RGBPixelSet *pxs);
@@ -47,6 +58,9 @@ namespace Compression{
                 char horizontalSampling, char quantTableIndex);
             void writeDHTMarker(ofstream* out, char htNumber, char htType, vector<pair<pair<int, int>, int> >* codes);
             void writeSOSMarker(ofstream* out, vector<ComponentInfo>* components);
+            int encodeMatrix(float* mtr, CodeWriter* writer, ComponentsEncoders* encoders, int prevDc);
+            void encodeDC(int numb, CodeWriter* writer, HuffmanCoder<int>* DCcoder);
+            void writeAC(int code, CodeWriter* writer, HuffmanCoder<int>* coder);
     };
 }
 
