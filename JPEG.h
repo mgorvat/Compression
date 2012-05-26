@@ -15,6 +15,13 @@
 using namespace std;
 
 namespace Compression{
+    struct ComponentInfo{
+        ComponentInfo(char id, char acTable, char dcTable): id(id), acTable(acTable), dcTable(dcTable){}
+        char id;
+        char acTable;
+        char dcTable;
+    };
+
     class JPEG{
         public:
             JPEG(RGBPixelSet *pxs);
@@ -39,7 +46,7 @@ namespace Compression{
             char* generateSOF0ComponentInfo(char id, char verticalSampling,
                 char horizontalSampling, char quantTableIndex);
             void writeDHTMarker(ofstream* out, char htNumber, char htType, vector<pair<pair<int, int>, int> >* codes);
-            void writeSOSMarker();
+            void writeSOSMarker(ofstream* out, vector<ComponentInfo>* components);
     };
 }
 

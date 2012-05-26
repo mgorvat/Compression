@@ -184,33 +184,41 @@ void JPEG::writeJPEG(string filename){
     codes = dcHuffTable(1); writeDHTMarker(&out, 1, 0, codes); delete codes;
     codes = makeJPEGTable(1); writeDHTMarker(&out, 1, 1, codes); delete codes;
 
-    wBuf = 0xffda;
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    wBuf = 12;
-    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
-    cBuf = 3;
-    out.write(&cBuf, sizeof(cBuf));
-    cBuf = 1;//Y
-    out.write(&cBuf, sizeof(cBuf));
-    cBuf = 0x00;
-    out.write(&cBuf, sizeof(cBuf));
+    //It must be fixed when ability to compress different types of images will be realised.
+    vector<ComponentInfo>* components = new vector<ComponentInfo>();
+    components->push_back(ComponentInfo(1, 0, 0));//Y
+    components->push_back(ComponentInfo(2, 1, 1));//Cb
+    components->push_back(ComponentInfo(3, 1, 1));//Cr
+    //Fix this. It's not good.
+    writeSOSMarker(&out, components);
+    delete components;
 
-    cBuf = 2;//Cb
-    out.write(&cBuf, sizeof(cBuf));
-    cBuf = 0x11;
-    out.write(&cBuf, sizeof(cBuf));
+//    wBuf = 12;
+//    writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
+//    cBuf = 3;
+//    out.write(&cBuf, sizeof(cBuf));
+//    cBuf = 1;//Y
+//    out.write(&cBuf, sizeof(cBuf));
+//    cBuf = 0x00;
+//    out.write(&cBuf, sizeof(cBuf));
+//
+//    cBuf = 2;//Cb
+//    out.write(&cBuf, sizeof(cBuf));
+//    cBuf = 0x11;
+//    out.write(&cBuf, sizeof(cBuf));
+//
+//    cBuf = 3;//Cr
+//    out.write(&cBuf, sizeof(cBuf));
+//    cBuf = 0x11;
+//    out.write(&cBuf, sizeof(cBuf));
+//
+//    cBuf = 0;
+//    out.write(&cBuf, sizeof(cBuf));
+//    cBuf = 0x3f;
+//    out.write(&cBuf, sizeof(cBuf));
+//    cBuf = 0;
+//    out.write(&cBuf, sizeof(cBuf));//Three ignorable bytes
 
-    cBuf = 3;//Cr
-    out.write(&cBuf, sizeof(cBuf));
-    cBuf = 0x11;
-    out.write(&cBuf, sizeof(cBuf));
-
-    cBuf = 0;
-    out.write(&cBuf, sizeof(cBuf));
-    cBuf = 0x3f;
-    out.write(&cBuf, sizeof(cBuf));
-    cBuf = 0;
-    out.write(&cBuf, sizeof(cBuf));//Three ignorable bytes
 
     CodeWriter writer(out);
     HuffmanCoder<pair<int, int> >* lCoder = initCoder(0);
@@ -323,6 +331,22 @@ void JPEG::writeDHTMarker(ofstream* out, char htNumber, char htType, vector<pair
 }
 
 
-void JPEG::writeSOSMarker(){
+void JPEG::writeSOSMarker(ofstream* out, vector<ComponentInfo>* components){
+    char cBuf;
+    unsigned short wBuf = 0xffda;
+    writeInvert(out, (char*)&wBuf, sizeof(wBuf));
+    wBuf = 6 + 2 * components->size();//Length of marker header
+    writeInvert(out, (char*)&wBuf, sizeof(wBuf));
+    cBuf = (char)components->size();//Number of components
+    out->write(&cBuf, sizeof(cBuf));
+    for(int i = 0; i < components->size(); i++){
+        cBuf = (*components)[i].id;
+        out->write(&cBuf, sizeof(cBuf));
+        cBuf = (*components)[i].acTable + ((*components)[i].dcTable<<4);
+        out->write(&cBuf, sizeof(cBuf));
+    }
+
+    char magicBytes[]{0x0, 0x3f, 0x0};//Some bytes. I didn't find what it means yet. Should be rewrited.
+    for(int i = 0; i < 3; i++) out->write(&(magicBytes[i]), sizeof(magicBytes[i]));//Writing magic bytes
 
 }
