@@ -338,10 +338,10 @@ void JPEG::writeSOSMarker(ofstream* out, vector<ComponentInfo>* components){
     for(int i = matrixCountInHeight - 1; i >= 0; i--){
         for(int j = 0; j < matrixCountInWidth; j++){
             for(int k = 0; k < components->size(); k++){
-                cout<<componentsArray[k][i * matrixCountInWidth + j][0]<<"\n";
-                cout<<YDCTMatrix[i * matrixCountInWidth + j][0]<<"\n";
-                cout<<CbDCTMatrix[i * matrixCountInWidth + j][0]<<"\n";
-                cout<<CrDCTMatrix[i * matrixCountInWidth + j][0]<<"\n";
+//                cout<<componentsArray[k][i * matrixCountInWidth + j][0]<<"\n";
+//                cout<<YDCTMatrix[i * matrixCountInWidth + j][0]<<"\n";
+//                cout<<CbDCTMatrix[i * matrixCountInWidth + j][0]<<"\n";
+//                cout<<CrDCTMatrix[i * matrixCountInWidth + j][0]<<"\n\n";
 
                 prevVals[k] = encodeMatrix(componentsArray[k][i * matrixCountInWidth + j],
                                            &writer, encoders[k], prevVals[k]);
@@ -360,7 +360,7 @@ int JPEG::encodeMatrix(float mtr[64], CodeWriter* writer, ComponentsEncoders* en
     int buf;
     for(int i = 0; i < vec->size(); i++){
         buf = ((*vec)[i].second<<4) + (*vec)[i].first;
-        writeAC(buf, writer, encoders->dcEncoder);
+        writeAC(buf, writer, encoders->acEncoder);
     }
     delete iMtr;
     return mtr[0];

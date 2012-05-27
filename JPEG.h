@@ -16,10 +16,10 @@ using namespace std;
 
 namespace Compression{
     struct ComponentInfo{
-        ComponentInfo(char id, char acTable, char dcTable): id(id), acTable(acTable), dcTable(dcTable){}
+        ComponentInfo(char id, char dcTable, char acTable): id(id), dcTable(dcTable), acTable(acTable){}
         char id;
-        char acTable;
         char dcTable;
+        char acTable;
     };
 
     struct ComponentsEncoders{
