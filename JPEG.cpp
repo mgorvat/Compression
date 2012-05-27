@@ -338,11 +338,6 @@ void JPEG::writeSOSMarker(ofstream* out, vector<ComponentInfo>* components){
     for(int i = matrixCountInHeight - 1; i >= 0; i--){
         for(int j = 0; j < matrixCountInWidth; j++){
             for(int k = 0; k < components->size(); k++){
-//                cout<<componentsArray[k][i * matrixCountInWidth + j][0]<<"\n";
-//                cout<<YDCTMatrix[i * matrixCountInWidth + j][0]<<"\n";
-//                cout<<CbDCTMatrix[i * matrixCountInWidth + j][0]<<"\n";
-//                cout<<CrDCTMatrix[i * matrixCountInWidth + j][0]<<"\n\n";
-
                 prevVals[k] = encodeMatrix(componentsArray[k][i * matrixCountInWidth + j],
                                            &writer, encoders[k], prevVals[k]);
 
