@@ -25,7 +25,7 @@ class HuffmanCoder{
 
         */
         HuffmanCoder(vector<T>* values, vector<pair<int, int> >* codes){
-            for(int i = 0; i < values->size(); i++){
+            for(int i = 0; i < (int)values->size(); i++){
                 mp[(*values)[i]] = (*codes)[i];
             }
         }

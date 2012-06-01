@@ -11,6 +11,7 @@
 #include "Utils.h"
 #include "HuffmanTable.h"
 #include "DCT.h"
+#include "JPEGConstants.h"
 
 using namespace std;
 
@@ -36,6 +37,8 @@ namespace Compression{
     class JPEG{
         public:
             JPEG(RGBPixelSet *pxs);
+//            JPEG(RGBPixelSet *pxs, vector<vector<int> > quantTables, vector<HuffmanCoder<int> > DCCoders,
+//                 vector<HuffmanCoder<int> > ACCoders, vector<ComponentInfo> inf);
             ~JPEG();
             void writeJPEG(string filename);
             vector<char> getComment();
@@ -43,10 +46,17 @@ namespace Compression{
         private:
             YUVPixelSet *yuvSet;
             int matrixCountInWidth, matrixCountInHeight;
+            vector<vector<int> > quantTables, zQuantTables;
+            vector<HuffmanCoder<int> > DCCoders, ACCoders;
+            vector<ComponentInfo> inf;
+
+
             float **YWorkMatrix, **CrWorkMatrix, **CbWorkMatrix;
             float **YDCTMatrix, **CrDCTMatrix, **CbDCTMatrix;
             vector<char> comment;
 
+            void init(RGBPixelSet *pxs, vector<vector<int> >* quantTables, vector<HuffmanCoder<int> >* DCCoders,
+                 vector<HuffmanCoder<int> >* ACCoders, vector<ComponentInfo>* inf);
             void separateComponents();
             float** initMatrix();
             void computeDCT();

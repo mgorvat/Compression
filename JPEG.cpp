@@ -1,7 +1,9 @@
 #include "JPEG.h"
 
-//luminosity quantanization table
-int lqt[]{2, 1, 1, 2, 3, 5, 6, 7,
+
+using namespace Compression;
+
+int lqt[64]{2, 1, 1, 2, 3, 5, 6, 7,
           1, 1, 2, 2, 3, 7, 7, 7,
           2, 2, 2, 3, 5, 7, 8, 7,
           2, 2, 3, 3, 6, 10, 10, 7,
@@ -9,12 +11,11 @@ int lqt[]{2, 1, 1, 2, 3, 5, 6, 7,
           3, 4, 7, 8, 10, 12, 14, 11,
           6, 8, 9, 10, 12, 15, 14, 12,
           9, 11, 11, 12, 13, 12, 12, 12};
-int lqtz[64];
 
 
 
 //chromaticity quantanization table
-int cqt[]{2, 2, 3, 6, 12, 12, 12, 12,
+int cqt[64]{2, 2, 3, 6, 12, 12, 12, 12,
           2, 3, 3, 8, 12, 12, 12, 12,
           3, 3, 7, 12, 12, 12, 12, 12,
           6, 8, 12, 12, 12, 12, 12, 12,
@@ -22,13 +23,16 @@ int cqt[]{2, 2, 3, 6, 12, 12, 12, 12,
           12, 12, 12, 12, 12, 12, 12, 12,
           12, 12, 12, 12, 12, 12, 12, 12,
           12, 12, 12, 12, 12, 12, 12, 12};
-int cqtz[64];
-
-using namespace Compression;
-
 
 //TODO: Comment this
 //TODO: Think about memory leaks
+
+//int lqtz[64];
+//int cqtz[64];
+
+int lqtz[64];
+int cqtz[64];
+
 
 char* invert(char* numb, int size){
     char* res = (char*)malloc(size);
@@ -77,11 +81,31 @@ void zigzag(int* matr, int* imatr){
 }
 
 JPEG::JPEG(RGBPixelSet *pxs){
+//    vector<int> lqtVec;
+//    vector<int> cqtVec;
+//    for(int i = 0; i < 64; i++){
+//        lqtVec.push_back(lqt[i]);
+//        cqtVec.push_back(cqt[i]);
+//    }
+
+
     yuvSet = RGBSetToYUVSet(pxs);
     zigzag(lqt, lqtz); zigzag(cqt, cqtz);
     separateComponents();
     computeDCT();
     quantify();
+
+}
+//JPEG::JPEG(RGBPixelSet *pxs, vector<vector<int> > quantTables, vector<HuffmanCoder<int> > DCCoders,
+//                 vector<HuffmanCoder<int> > ACCoders, vector<ComponentInfo> inf){
+////    init(RGBPixelSet *pxs, vector<vector<int> > &quantTables, vector<HuffmanCoder> &DCCoders,
+////           vector<HuffmanCoder> &ACCoders, vector<ComponentInfo> &inf)
+//}
+
+void JPEG::init(RGBPixelSet *pxs, vector<vector<int> > *quantTables, vector<HuffmanCoder<int> > *DCCoders,
+           vector<HuffmanCoder<int> > *ACCoders, vector<ComponentInfo> *inf){
+
+
 }
 
 JPEG::~JPEG(){
@@ -166,7 +190,6 @@ void JPEG::writeJPEG(string filename){
     out.open(filename.c_str(), std::ios::binary);
 
     unsigned short wBuf;
-    char cBuf;
     wBuf = 0xffd8;
     writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
 
@@ -193,25 +216,6 @@ void JPEG::writeJPEG(string filename){
     writeSOSMarker(&out, components);
     delete components;
 
-//    CodeWriter writer(out);
-//    HuffmanCoder<int>* lCoder = initCoder(0);
-//    HuffmanCoder<int>* cCoder = initCoder(1);
-//    HuffmanCoder<int>* lDCCoder = initDCCoder(0);
-//    HuffmanCoder<int>* cDCCoder = initDCCoder(1);
-//
-//
-//    int prevY = 512, prevCb = 512, prevCr = 512;
-//    for(int i = matrixCountInHeight - 1; i >= 0; i--){
-//        for(int j = 0; j < matrixCountInWidth; j++){
-//            prevY = encodeMatrix(YDCTMatrix[i * matrixCountInWidth + j], &writer, lCoder, lDCCoder, prevY);
-//            prevCb = encodeMatrix(CbDCTMatrix[i * matrixCountInWidth + j], &writer, cCoder, cDCCoder, prevCb);
-//            prevCr = encodeMatrix(CrDCTMatrix[i * matrixCountInWidth + j], &writer, cCoder, cDCCoder, prevCr);
-//
-//        }
-//    }
-//    writer.flush();
-
-
     wBuf = 0xffd9;
     writeInvert(&out, (char*)&wBuf, sizeof(wBuf));
     out.close();
@@ -223,7 +227,7 @@ void JPEG::writeComment(ofstream *out){
         out->write(invert((char*)&wBuf, sizeof(wBuf)), sizeof(wBuf));
         short size = comment.size() + 2;
         writeInvert(out, (char*)&size, sizeof(size));
-        for(int i = 0; i < comment.size(); i++)out->write(&comment[i], sizeof(char));
+        for(int i = 0; i < (int)comment.size(); i++)out->write(&comment[i], sizeof(char));
     }
 }
 
@@ -312,7 +316,7 @@ void JPEG::writeSOSMarker(ofstream* out, vector<ComponentInfo>* components){
     writeInvert(out, (char*)&wBuf, sizeof(wBuf));
     cBuf = (char)components->size();//Number of components
     out->write(&cBuf, sizeof(cBuf));
-    for(int i = 0; i < components->size(); i++){
+    for(int i = 0; i < (int)components->size(); i++){
         cBuf = (*components)[i].id;
         out->write(&cBuf, sizeof(cBuf));
         cBuf = (*components)[i].acTable + ((*components)[i].dcTable<<4);
@@ -323,7 +327,7 @@ void JPEG::writeSOSMarker(ofstream* out, vector<ComponentInfo>* components){
     for(int i = 0; i < 3; i++) out->write(&(magicBytes[i]), sizeof(magicBytes[i]));//Writing magic bytes
     vector<int> prevVals(components->size(), 512);
     vector<ComponentsEncoders* > encoders;
-    for(int i = 0; i < components->size(); i++){
+    for(int i = 0; i < (int)components->size(); i++){
         ComponentsEncoders* encoder = new ComponentsEncoders(initDCCoder((*components)[i].dcTable),
                                                             initCoder((*components)[i].acTable));
         encoders.push_back(encoder);
@@ -334,10 +338,11 @@ void JPEG::writeSOSMarker(ofstream* out, vector<ComponentInfo>* components){
     componentsArray[0] = YDCTMatrix;
     componentsArray[1] = CbDCTMatrix;
     componentsArray[2] = CrDCTMatrix;
-    cout<<"begin\n";
+
+
     for(int i = matrixCountInHeight - 1; i >= 0; i--){
         for(int j = 0; j < matrixCountInWidth; j++){
-            for(int k = 0; k < components->size(); k++){
+            for(int k = 0; k < (int)components->size(); k++){
                 prevVals[k] = encodeMatrix(componentsArray[k][i * matrixCountInWidth + j],
                                            &writer, encoders[k], prevVals[k]);
 
@@ -353,7 +358,7 @@ int JPEG::encodeMatrix(float mtr[64], CodeWriter* writer, ComponentsEncoders* en
     int* iMtr = toIntMtr(mtr);
     vector<pair<int, int> > * vec = zeroSeqCodind(iMtr);
     int buf;
-    for(int i = 0; i < vec->size(); i++){
+    for(int i = 0; i < (int)vec->size(); i++){
         buf = ((*vec)[i].second<<4) + (*vec)[i].first;
         writeAC(buf, writer, encoders->acEncoder);
     }
