@@ -8,7 +8,7 @@ bool comp(pair<pair<int, int>, int> a, pair<pair<int, int>, int> b) {
 
 
 
-HuffmanCoder<int>* initDCCoder(int index){
+HuffmanEncoder<int>* initDCCoder(int index){
     vector<pair<pair<int, int>, int> > *vec;
 
     if(index == 0)vec = dcHuffTable(0);
@@ -20,14 +20,14 @@ HuffmanCoder<int>* initDCCoder(int index){
         vals->push_back((*vec)[i].second);
         codes->push_back((*vec)[i].first);
     }
-    HuffmanCoder<int>* res = new HuffmanCoder<int>(vals, codes);
+    HuffmanEncoder<int>* res = new HuffmanEncoder<int>(vals, codes);
     delete vals;
     delete codes;
     delete vec;
     return res;
 }
 
-HuffmanCoder<int>* initCoder(int index){
+HuffmanEncoder<int>* initCoder(int index){
     pair<int, int>* codeTable;
     pair<int, int> eof;
     pair<int, int> zrl;
@@ -51,7 +51,7 @@ HuffmanCoder<int>* initCoder(int index){
             codes.push_back(codeTable[10 * j + i]);
         }
     }
-    HuffmanCoder<int>* coder = new HuffmanCoder<int>(&vals, &codes);
+    HuffmanEncoder<int>* coder = new HuffmanEncoder<int>(&vals, &codes);
     return coder;
 }
 

@@ -96,14 +96,14 @@ JPEG::JPEG(RGBPixelSet *pxs){
     quantify();
 
 }
-//JPEG::JPEG(RGBPixelSet *pxs, vector<vector<int> > quantTables, vector<HuffmanCoder<int> > DCCoders,
-//                 vector<HuffmanCoder<int> > ACCoders, vector<ComponentInfo> inf){
-////    init(RGBPixelSet *pxs, vector<vector<int> > &quantTables, vector<HuffmanCoder> &DCCoders,
-////           vector<HuffmanCoder> &ACCoders, vector<ComponentInfo> &inf)
+//JPEG::JPEG(RGBPixelSet *pxs, vector<vector<int> > quantTables, vector<HuffmanEncoder<int> > DCCoders,
+//                 vector<HuffmanEncoder<int> > ACCoders, vector<ComponentInfo> inf){
+////    init(RGBPixelSet *pxs, vector<vector<int> > &quantTables, vector<HuffmanEncoder> &DCCoders,
+////           vector<HuffmanEncoder> &ACCoders, vector<ComponentInfo> &inf)
 //}
 
-void JPEG::init(RGBPixelSet *pxs, vector<vector<int> > *quantTables, vector<HuffmanCoder<int> > *DCCoders,
-           vector<HuffmanCoder<int> > *ACCoders, vector<ComponentInfo> *inf){
+void JPEG::init(RGBPixelSet *pxs, vector<vector<int> > *quantTables, vector<HuffmanEncoder<int> > *DCCoders,
+           vector<HuffmanEncoder<int> > *ACCoders, vector<ComponentInfo> *inf){
 
 
 }
@@ -366,7 +366,7 @@ int JPEG::encodeMatrix(float mtr[64], CodeWriter* writer, ComponentsEncoders* en
     return mtr[0];
 }
 
-void JPEG::encodeDC(int numb, CodeWriter* writer, HuffmanCoder<int>* DCcoder){
+void JPEG::encodeDC(int numb, CodeWriter* writer, HuffmanEncoder<int>* DCcoder){
     pair<int, int> p = getCode(numb);
     int buf = p.first;
     pair<int, int> p2 = DCcoder->getCode(&buf);
@@ -374,7 +374,7 @@ void JPEG::encodeDC(int numb, CodeWriter* writer, HuffmanCoder<int>* DCcoder){
     writer->writeCode(p);
 }
 
-void JPEG::writeAC(int code, CodeWriter* writer, HuffmanCoder<int>* coder){
+void JPEG::writeAC(int code, CodeWriter* writer, HuffmanEncoder<int>* coder){
     if(code == 0){writer->writeCode(coder->getCode(&code)); return; }
     if(code == 15<<4){writer->writeCode(coder->getCode(&code)); return; }
     int buf;

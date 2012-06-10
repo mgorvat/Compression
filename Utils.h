@@ -5,7 +5,7 @@
 #include <utility>
 
 #include "CodeWriter.h"
-#include "HuffmanCoder.h"
+#include "HuffmanEncoder.h"
 #include "JPEG.h"
 
 using namespace std;

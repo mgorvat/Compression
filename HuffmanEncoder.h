@@ -1,5 +1,5 @@
-#ifndef HUFFMANCODER_H_INCLUDED
-#define HUFFMANCODER_H_INCLUDED
+#ifndef HUFFMANENCODER_H_INCLUDED
+#define HUFFMANENCODER_H_INCLUDED
 
 #include <vector>
 #include <map>
@@ -13,7 +13,7 @@ using namespace std;
     are immutable.
 */
 template <class T>
-class HuffmanCoder{
+class HuffmanEncoder{
     public:
         /**
             Constructor. Makes the map.
@@ -24,7 +24,7 @@ class HuffmanCoder{
                     vector. Number of elements in values and codes must be equal.
 
         */
-        HuffmanCoder(vector<T>* values, vector<pair<int, int> >* codes){
+        HuffmanEncoder(vector<T>* values, vector<pair<int, int> >* codes){
             for(int i = 0; i < (int)values->size(); i++){
                 mp[(*values)[i]] = (*codes)[i];
             }
@@ -40,4 +40,4 @@ class HuffmanCoder{
     private:
         map<T, pair<int, int> > mp;//Here class store values
 };
-#endif // HUFFMANCODER_H_INCLUDED
+#endif // HuffmanEncoder_H_INCLUDED

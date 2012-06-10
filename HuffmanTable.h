@@ -7,12 +7,12 @@
 #include <iostream>
 
 
-#include "HuffmanCoder.h"
+#include "HuffmanEncoder.h"
 
 using namespace std;
 
-HuffmanCoder<int>* initCoder(int);
-HuffmanCoder<int>* initDCCoder(int);
+HuffmanEncoder<int>* initCoder(int);
+HuffmanEncoder<int>* initDCCoder(int);
 vector<pair<pair<int, int>, int> >* makeJPEGTable(int index);
 vector<pair<pair<int, int>, int> >* dcHuffTable(int n);
 vector<int>* dcNumbs();

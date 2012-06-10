@@ -24,21 +24,21 @@ namespace Compression{
     };
 
     struct ComponentsEncoders{
-        ComponentsEncoders(HuffmanCoder<int>* dcEncoder,
-                          HuffmanCoder<int>* acEncoder): dcEncoder(dcEncoder), acEncoder(acEncoder) {}
+        ComponentsEncoders(HuffmanEncoder<int>* dcEncoder,
+                          HuffmanEncoder<int>* acEncoder): dcEncoder(dcEncoder), acEncoder(acEncoder) {}
         ~ComponentsEncoders(){
             delete dcEncoder;
             delete acEncoder;
         }
-        HuffmanCoder<int>* dcEncoder;
-        HuffmanCoder<int>* acEncoder;
+        HuffmanEncoder<int>* dcEncoder;
+        HuffmanEncoder<int>* acEncoder;
     };
 
     class JPEG{
         public:
             JPEG(RGBPixelSet *pxs);
-//            JPEG(RGBPixelSet *pxs, vector<vector<int> > quantTables, vector<HuffmanCoder<int> > DCCoders,
-//                 vector<HuffmanCoder<int> > ACCoders, vector<ComponentInfo> inf);
+//            JPEG(RGBPixelSet *pxs, vector<vector<int> > quantTables, vector<HuffmanEncoder<int> > DCCoders,
+//                 vector<HuffmanEncoder<int> > ACCoders, vector<ComponentInfo> inf);
             ~JPEG();
             void writeJPEG(string filename);
             vector<char> getComment();
@@ -47,7 +47,7 @@ namespace Compression{
             YUVPixelSet *yuvSet;
             int matrixCountInWidth, matrixCountInHeight;
             vector<vector<int> > quantTables, zQuantTables;
-            vector<HuffmanCoder<int> > DCCoders, ACCoders;
+            vector<HuffmanEncoder<int> > DCCoders, ACCoders;
             vector<ComponentInfo> inf;
 
 
@@ -55,8 +55,8 @@ namespace Compression{
             float **YDCTMatrix, **CrDCTMatrix, **CbDCTMatrix;
             vector<char> comment;
 
-            void init(RGBPixelSet *pxs, vector<vector<int> >* quantTables, vector<HuffmanCoder<int> >* DCCoders,
-                 vector<HuffmanCoder<int> >* ACCoders, vector<ComponentInfo>* inf);
+            void init(RGBPixelSet *pxs, vector<vector<int> >* quantTables, vector<HuffmanEncoder<int> >* DCCoders,
+                 vector<HuffmanEncoder<int> >* ACCoders, vector<ComponentInfo>* inf);
             void separateComponents();
             float** initMatrix();
             void computeDCT();
@@ -69,8 +69,8 @@ namespace Compression{
             void writeDHTMarker(ofstream* out, char htNumber, char htType, vector<pair<pair<int, int>, int> >* codes);
             void writeSOSMarker(ofstream* out, vector<ComponentInfo>* components);
             int encodeMatrix(float* mtr, CodeWriter* writer, ComponentsEncoders* encoders, int prevDc);
-            void encodeDC(int numb, CodeWriter* writer, HuffmanCoder<int>* DCcoder);
-            void writeAC(int code, CodeWriter* writer, HuffmanCoder<int>* coder);
+            void encodeDC(int numb, CodeWriter* writer, HuffmanEncoder<int>* DCcoder);
+            void writeAC(int code, CodeWriter* writer, HuffmanEncoder<int>* coder);
     };
 }
 
