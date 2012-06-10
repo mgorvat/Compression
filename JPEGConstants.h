@@ -4,11 +4,28 @@
 #include <utility>
 
 
-//TODO: Place const in right place
+//luminocity quantanization table
+static const int lqt[64]{2, 1, 1, 2, 3, 5, 6, 7,
+          1, 1, 2, 2, 3, 7, 7, 7,
+          2, 2, 2, 3, 5, 7, 8, 7,
+          2, 2, 3, 3, 6, 10, 10, 7,
+          2, 3, 4, 7, 8, 13, 12, 9,
+          3, 4, 7, 8, 10, 12, 14, 11,
+          6, 8, 9, 10, 12, 15, 14, 12,
+          9, 11, 11, 12, 13, 12, 12, 12};
 
 
-//int lqtz[64];
-//int cqtz[64];
+
+//chromaticity quantanization table
+static const int cqt[64]{2, 2, 3, 6, 12, 12, 12, 12,
+          2, 3, 3, 8, 12, 12, 12, 12,
+          3, 3, 7, 12, 12, 12, 12, 12,
+          6, 8, 12, 12, 12, 12, 12, 12,
+          12, 12, 12, 12, 12, 12, 12, 12,
+          12, 12, 12, 12, 12, 12, 12, 12,
+          12, 12, 12, 12, 12, 12, 12, 12,
+          12, 12, 12, 12, 12, 12, 12, 12};
+
 
 const pair<int, int> leof = pair<int, int>(4, 10);
 const pair<int, int> lzrl = pair<int, int>(11, 2041);
