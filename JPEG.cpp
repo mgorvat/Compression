@@ -175,7 +175,7 @@ void JPEG::writeJPEG(string filename){
     writeSOF0Marker(&out, 8, 3);
     //Number of components can't be changet yet. What is precision I don't understand. Usually it is 8.
 
-    vector<pair<pair<int, int>, int> >* codes;
+    vector<pair<Code, int> >* codes;
 
     //Writing of 4 DCT markers. It can be better. Fix it.
     codes = dcHuffTable(0); writeDHTMarker(&out, 0, 0, codes); delete codes;
@@ -262,7 +262,7 @@ char* JPEG::generateSOF0ComponentInfo(char id,
 }
 
 
-void JPEG::writeDHTMarker(ofstream* out, char htNumber, char htType, vector<pair<pair<int, int>, int> >* codes){
+void JPEG::writeDHTMarker(ofstream* out, char htNumber, char htType, vector<pair<Code, int> >* codes){
     unsigned short wBuf = 0xffc4;
     writeInvert(out, (char*)&wBuf, sizeof(wBuf));
     wBuf = 19 + codes->size();//Size of marker. Equals 19 + number of codes.
@@ -343,9 +343,9 @@ int JPEG::encodeMatrix(float mtr[64], CodeWriter* writer, ComponentsEncoders* en
 }
 
 void JPEG::encodeDC(int numb, CodeWriter* writer, HuffmanEncoder<int>* DCcoder){
-    pair<int, int> p = getCode(numb);
-    int buf = p.first;
-    pair<int, int> p2 = DCcoder->getCode(&buf);
+    Code p = getCode(numb);
+    int buf = p.length;
+    Code p2 = DCcoder->getCode(&buf);
     writer->writeCode(p2);
     writer->writeCode(p);
 }
@@ -354,8 +354,8 @@ void JPEG::writeAC(int code, CodeWriter* writer, HuffmanEncoder<int>* coder){
     if(code == 0){writer->writeCode(coder->getCode(&code)); return; }
     if(code == 15<<4){writer->writeCode(coder->getCode(&code)); return; }
     int buf;
-    pair<int, int> RZ = getCode(code % 0xf);
-    buf = (code<<4) + RZ.first;
+    Code RZ = getCode(code % 0xf);
+    buf = (code<<4) + RZ.length;
     writer->writeCode(coder->getCode(&buf));
     writer->writeCode(RZ);
 }

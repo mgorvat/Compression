@@ -1,27 +1,32 @@
 #ifndef TREE_H_INCLUDED
 #define TREE_H_INCLUDED
 
-#include <vector>
+#include "HuffmanTable.h"
 
 using namespace std;
 
 class HuffmanTree{
     public:
-        HuffmanTree();
-        HuffmanTree(vector<int>* path, HuffmanTree* parent);
+        HuffmanTree(HuffmanTable* ht);
         ~HuffmanTree();
+        HuffmanEncoder<int> makeEncoder();
+    private:
+        HuffmanTree();
+        HuffmanTree(int codeLength, int codeVal, HuffmanTree* parent);
         HuffmanTree* getLeft();
         HuffmanTree* getRight();
         HuffmanTree* getParent();
-        vector<int>* getPath();
-        HuffmanTree* addVal(int length, int val);
         int getVal();
         bool haveVal();
-    private:
-        vector<int>* path;
+        HuffmanTree* addVal(int length, int val);
+
+
         int val;
         HuffmanTree* left;
         HuffmanTree* right;
         HuffmanTree* parent;
+        int codeLength;
+        int codeVal;
+
 };
 #endif

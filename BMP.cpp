@@ -1,12 +1,14 @@
 #include "BMP.h"
 
+//TODO: Rewrite it with no warnings
+
 namespace Compression{
     BMP* BMP::readImage(string fileName){
         //BMP *ret = new BMP();
-        long imSize, width, height;
-        unsigned short bitCount;
-        unsigned long compr, clrUsed, clrImp;
-        long xRes, yRes;
+//        long imSize, width, height;
+//        unsigned short bitCount;
+//        unsigned long compr, clrUsed, clrImp;
+//        long xRes, yRes;
         /*Buffers for reading file.*/
 
         ifstream in;
@@ -15,7 +17,7 @@ namespace Compression{
         BMPInfo *inf = new BMPInfo();
         in>>(*inf);
 
-        if(imSize == 0) imSize = inf->width * inf->height * inf->bitCount;
+        if(inf->imagSize == 0) inf->imagSize = inf->width * inf->height * inf->bitCount;
         RGBPixelSet *rgb;
         if(inf->bitCount == 24) rgb = read24BitImage(&in, inf->height, inf->width);
 

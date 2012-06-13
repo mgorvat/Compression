@@ -11,10 +11,10 @@
 using namespace std;
 
 vector<pair<int, int> >* seqCodind(int seq[64]);
-pair<int, int> getCode(int numb);
-pair<int, int> getUnaryCode(int length);
+Code getCode(int numb);
+Code getUnaryCode(int length);
 int* toIntMtr(float mtr[64]);
 vector<pair<int, int> >* zeroSeqCodind(int seq[64]);
-vector<int>* numbers(vector<pair<pair<int, int>, int> >*);
+vector<int>* numbers(vector<pair<Code, int> >*);
 
 #endif // UTILS_H_INCLUDED

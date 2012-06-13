@@ -21,15 +21,15 @@ vector<pair<int, int> >* zeroSeqCodind(int seq[64]){
     return res;
 }
 
-pair<int, int> getCode(int numb){
-    if(numb == 0)return pair<int, int>(0, 0);
+Code getCode(int numb){
+    if(numb == 0)return Code(0, 0);
     int buf = numb>0? numb: -numb;
     int size = 0;
     while(buf > 0){
         size++;
         buf = buf>>1;
     }
-    if(size == 16)return pair<int, int> (16, 0);
+    if(size == 16)return Code (16, 0);
     buf = 1<<size;
     int code;
     if(numb<0){
@@ -37,15 +37,15 @@ pair<int, int> getCode(int numb){
         buf++;
         code = numb - buf;
     }else code = numb;
-    return pair<int, int> (size, code);
+    return Code(size, code);
 }
 
-pair<int, int> getUnaryCode(int length){
-    if(length == 16)return pair<int, int>(16, 0xFF);
+Code getUnaryCode(int length){
+    if(length == 16)Code(16, 0xFF);
     int res = 0;
     for(int i = 0; i < length; i++) res = (res<<1) + 1;
     res = res<<1;
-    return pair<int, int>(length + 1, res);
+    return Code(length + 1, res);
 }
 
 
@@ -69,13 +69,13 @@ int* toIntMtr(float mtr[64]){
 //}
 
 
-vector<int>* numbers(vector<pair<pair<int, int>, int> >* table){
+vector<int>* numbers(vector<pair<Code, int> >* table){
     vector<int>* res = new vector<int>();
     int length = 1;
     int ct = 0;
 
-    for(int i = 0; i < table->size(); i++){
-        if((*table)[i].first.first == length) ct++;
+    for(int i = 0; i < (int)table->size(); i++){
+        if((*table)[i].first.length == length) ct++;
         else{
             res->push_back(ct);
             length++;

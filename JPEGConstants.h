@@ -4,6 +4,9 @@
 #include <utility>
 
 
+#include "Code.h"
+
+
 //luminocity quantanization table
 static const int lqt[64]{2, 1, 1, 2, 3, 5, 6, 7,
           1, 1, 2, 2, 3, 7, 7, 7,
@@ -27,79 +30,79 @@ static const int cqt[64]{2, 2, 3, 6, 12, 12, 12, 12,
           12, 12, 12, 12, 12, 12, 12, 12};
 
 
-const pair<int, int> leof = pair<int, int>(4, 10);
-const pair<int, int> lzrl = pair<int, int>(11, 2041);
-const pair<int, int>lht[]{
-      pair<int, int>(2, 0), pair<int, int>(2, 1), pair<int, int>(3, 4), pair<int, int>(4, 11), pair<int, int>(5, 26),
-      pair<int, int>(7, 120), pair<int, int>(8, 248), pair<int, int>(10, 1014), pair<int, int>(16, 65410), pair<int, int>(16, 65411),
-      pair<int, int>(4, 12), pair<int, int>(5, 27), pair<int, int>(7, 121), pair<int, int>(9, 502), pair<int, int>(11, 2038),
-      pair<int, int>(16, 65412), pair<int, int>(16, 65413), pair<int, int>(16, 65414), pair<int, int>(16, 65415), pair<int, int>(16, 65416),
-      pair<int, int>(5, 28), pair<int, int>(8, 249), pair<int, int>(10, 1015), pair<int, int>(12, 4084), pair<int, int>(16, 65417),
-      pair<int, int>(16, 65418), pair<int, int>(16, 65419), pair<int, int>(16, 65420), pair<int, int>(16, 65421), pair<int, int>(16, 65422),
-      pair<int, int>(6, 58), pair<int, int>(9, 503), pair<int, int>(12, 4085), pair<int, int>(16, 65423), pair<int, int>(16, 65424),
-      pair<int, int>(16, 65425), pair<int, int>(16, 65426), pair<int, int>(16, 65427), pair<int, int>(16, 65428), pair<int, int>(16, 65429),
-      pair<int, int>(6, 59), pair<int, int>(10, 1016), pair<int, int>(16, 65430), pair<int, int>(16, 65431), pair<int, int>(16, 65432),
-      pair<int, int>(16, 65433), pair<int, int>(16, 65434), pair<int, int>(16, 65435), pair<int, int>(16, 65436), pair<int, int>(16, 65437),
-      pair<int, int>(7, 122), pair<int, int>(11, 2039), pair<int, int>(16, 65438), pair<int, int>(16, 65439), pair<int, int>(16, 65440),
-      pair<int, int>(16, 65441), pair<int, int>(16, 65442), pair<int, int>(16, 65443), pair<int, int>(16, 65444), pair<int, int>(16, 65445),
-      pair<int, int>(7, 123), pair<int, int>(12, 4086), pair<int, int>(16, 65446), pair<int, int>(16, 65447), pair<int, int>(16, 65448),
-      pair<int, int>(16, 65449), pair<int, int>(16, 65450), pair<int, int>(16, 65451), pair<int, int>(16, 65452), pair<int, int>(16, 65453),
-      pair<int, int>(8, 250), pair<int, int>(12, 4087), pair<int, int>(16, 65454), pair<int, int>(16, 65455), pair<int, int>(16, 65456),
-      pair<int, int>(16, 65457), pair<int, int>(16, 65458), pair<int, int>(16, 65459), pair<int, int>(16, 65460), pair<int, int>(16, 65461),
-      pair<int, int>(9, 504), pair<int, int>(15, 32704), pair<int, int>(16, 65462), pair<int, int>(16, 65463), pair<int, int>(16, 65464),
-      pair<int, int>(16, 65465), pair<int, int>(16, 65466), pair<int, int>(16, 65467), pair<int, int>(16, 65468), pair<int, int>(16, 65469),
-        pair<int, int>(9, 505), pair<int, int>(16, 65470), pair<int, int>(16, 65471), pair<int, int>(16, 65472), pair<int, int>(16, 65473),
-      pair<int, int>(16, 65474), pair<int, int>(16, 65475), pair<int, int>(16, 65476), pair<int, int>(16, 65477), pair<int, int>(16, 65478),
-      pair<int, int>(9, 506), pair<int, int>(16, 65479), pair<int, int>(16, 65480), pair<int, int>(16, 65481), pair<int, int>(16, 65482),
-      pair<int, int>(16, 65483), pair<int, int>(16, 65484), pair<int, int>(16, 65485), pair<int, int>(16, 65486), pair<int, int>(16, 65487),
-      pair<int, int>(10, 1017), pair<int, int>(16, 65488), pair<int, int>(16, 65489), pair<int, int>(16, 65490), pair<int, int>(16, 65491),
-      pair<int, int>(16, 65492), pair<int, int>(16, 65493), pair<int, int>(16, 65494), pair<int, int>(16, 65495), pair<int, int>(16, 65496),
-      pair<int, int>(10, 1018), pair<int, int>(16, 65497), pair<int, int>(16, 65498), pair<int, int>(16, 65499), pair<int, int>(16, 65500),
-      pair<int, int>(16, 65501), pair<int, int>(16, 65502), pair<int, int>(16, 65503), pair<int, int>(16, 65504), pair<int, int>(16, 65505),
-      pair<int, int>(11, 2040), pair<int, int>(16, 65506), pair<int, int>(16, 65507), pair<int, int>(16, 65508), pair<int, int>(16, 65509),
-      pair<int, int>(16, 65510), pair<int, int>(16, 65511), pair<int, int>(16, 65512), pair<int, int>(16, 65513), pair<int, int>(16, 65514),
-      pair<int, int>(16, 65515), pair<int, int>(16, 65516), pair<int, int>(16, 65517), pair<int, int>(16, 65518), pair<int, int>(16, 65519),
-      pair<int, int>(16, 65520), pair<int, int>(16, 65521), pair<int, int>(16, 65522), pair<int, int>(16, 65523), pair<int, int>(16, 65524),
-      pair<int, int>(16, 65525), pair<int, int>(16, 65526), pair<int, int>(16, 65527), pair<int, int>(16, 65528), pair<int, int>(16, 65529),
-      pair<int, int>(16, 65530), pair<int, int>(16, 65531), pair<int, int>(16, 65532), pair<int, int>(16, 65533), pair<int, int>(16, 65534)
+const Code leof = Code(4, 10);
+const Code lzrl = Code(11, 2041);
+const Code lht[]{
+      Code(2, 0), Code(2, 1), Code(3, 4), Code(4, 11), Code(5, 26),
+      Code(7, 120), Code(8, 248), Code(10, 1014), Code(16, 65410), Code(16, 65411),
+      Code(4, 12), Code(5, 27), Code(7, 121), Code(9, 502), Code(11, 2038),
+      Code(16, 65412), Code(16, 65413), Code(16, 65414), Code(16, 65415), Code(16, 65416),
+      Code(5, 28), Code(8, 249), Code(10, 1015), Code(12, 4084), Code(16, 65417),
+      Code(16, 65418), Code(16, 65419), Code(16, 65420), Code(16, 65421), Code(16, 65422),
+      Code(6, 58), Code(9, 503), Code(12, 4085), Code(16, 65423), Code(16, 65424),
+      Code(16, 65425), Code(16, 65426), Code(16, 65427), Code(16, 65428), Code(16, 65429),
+      Code(6, 59), Code(10, 1016), Code(16, 65430), Code(16, 65431), Code(16, 65432),
+      Code(16, 65433), Code(16, 65434), Code(16, 65435), Code(16, 65436), Code(16, 65437),
+      Code(7, 122), Code(11, 2039), Code(16, 65438), Code(16, 65439), Code(16, 65440),
+      Code(16, 65441), Code(16, 65442), Code(16, 65443), Code(16, 65444), Code(16, 65445),
+      Code(7, 123), Code(12, 4086), Code(16, 65446), Code(16, 65447), Code(16, 65448),
+      Code(16, 65449), Code(16, 65450), Code(16, 65451), Code(16, 65452), Code(16, 65453),
+      Code(8, 250), Code(12, 4087), Code(16, 65454), Code(16, 65455), Code(16, 65456),
+      Code(16, 65457), Code(16, 65458), Code(16, 65459), Code(16, 65460), Code(16, 65461),
+      Code(9, 504), Code(15, 32704), Code(16, 65462), Code(16, 65463), Code(16, 65464),
+      Code(16, 65465), Code(16, 65466), Code(16, 65467), Code(16, 65468), Code(16, 65469),
+      Code(9, 505), Code(16, 65470), Code(16, 65471), Code(16, 65472), Code(16, 65473),
+      Code(16, 65474), Code(16, 65475), Code(16, 65476), Code(16, 65477), Code(16, 65478),
+      Code(9, 506), Code(16, 65479), Code(16, 65480), Code(16, 65481), Code(16, 65482),
+      Code(16, 65483), Code(16, 65484), Code(16, 65485), Code(16, 65486), Code(16, 65487),
+      Code(10, 1017), Code(16, 65488), Code(16, 65489), Code(16, 65490), Code(16, 65491),
+      Code(16, 65492), Code(16, 65493), Code(16, 65494), Code(16, 65495), Code(16, 65496),
+      Code(10, 1018), Code(16, 65497), Code(16, 65498), Code(16, 65499), Code(16, 65500),
+      Code(16, 65501), Code(16, 65502), Code(16, 65503), Code(16, 65504), Code(16, 65505),
+      Code(11, 2040), Code(16, 65506), Code(16, 65507), Code(16, 65508), Code(16, 65509),
+      Code(16, 65510), Code(16, 65511), Code(16, 65512), Code(16, 65513), Code(16, 65514),
+      Code(16, 65515), Code(16, 65516), Code(16, 65517), Code(16, 65518), Code(16, 65519),
+      Code(16, 65520), Code(16, 65521), Code(16, 65522), Code(16, 65523), Code(16, 65524),
+      Code(16, 65525), Code(16, 65526), Code(16, 65527), Code(16, 65528), Code(16, 65529),
+      Code(16, 65530), Code(16, 65531), Code(16, 65532), Code(16, 65533), Code(16, 65534)
 };
 
 
-const pair<int, int> ceof = pair<int, int>(2, 0);
-const pair<int, int> czrl = pair<int, int>(10, 1018);
-const pair<int, int> cht[]{
-      pair<int, int>(2, 1), pair<int, int>(3, 4), pair<int, int>(4, 10), pair<int, int>(5, 24), pair<int, int>(5, 25),
-      pair<int, int>(6, 56), pair<int, int>(7, 120), pair<int, int>(9, 500), pair<int, int>(10, 1014), pair<int, int>(12, 4084),
-      pair<int, int>(4, 11), pair<int, int>(6, 57), pair<int, int>(8, 246), pair<int,int>(9, 501), pair<int, int>(11, 2038),
-      pair<int, int>(12, 4085), pair<int, int>(16, 65416), pair<int, int>(16, 65417), pair<int, int>(16, 65418), pair<int, int>(16, 65419),
-      pair<int, int>(5, 26), pair<int, int>(8, 247), pair<int, int>(10, 1015), pair<int, int>(12, 4086), pair<int, int>(15, 32706),
-      pair<int, int>(16, 65420), pair<int, int>(16, 65421), pair<int, int>(16, 65422), pair<int, int>(16, 65423), pair<int, int>(16, 65424),
-      pair<int, int>(5, 27), pair<int, int>(8, 248), pair<int, int>(10, 1016), pair<int, int>(12, 4087), pair<int, int>(16, 65425),
-      pair<int, int>(16, 65426), pair<int, int>(16, 65427), pair<int, int>(16, 65428), pair<int, int>(16, 65429), pair<int, int>(16, 65430),
-      pair<int, int>(6, 58), pair<int, int>(9, 502), pair<int, int>(16, 65431), pair<int, int>(16, 65432), pair<int, int>(16, 65433),
-      pair<int, int>(16, 65434), pair<int, int>(16, 65435), pair<int, int>(16, 65436), pair<int, int>(16, 65437), pair<int, int>(16, 65438),
-      pair<int, int>(6, 59), pair<int, int>(10, 1017), pair<int, int>(16, 65439), pair<int, int>(16, 65440), pair<int, int>(16, 65441),
-      pair<int, int>(16, 65442), pair<int, int>(16, 65443), pair<int, int>(16, 65444), pair<int, int>(16, 65445), pair<int, int>(16, 65446),
-      pair<int, int>(7, 121), pair<int, int>(11, 2039), pair<int, int>(16, 65447), pair<int, int>(16, 65448), pair<int, int>(16, 65449),
-      pair<int, int>(16, 65450), pair<int, int>(16, 65451), pair<int, int>(16, 65452), pair<int, int>(16, 65453), pair<int, int>(16, 65454),
-      pair<int, int>(7, 122), pair<int, int>(11, 2040), pair<int, int>(16, 65455), pair<int, int>(16, 65456), pair<int, int>(16, 65457),
-      pair<int, int>(16, 65458), pair<int, int>(16, 65459), pair<int, int>(16, 65460), pair<int, int>(16, 65461), pair<int, int>(16, 65462),
-      pair<int, int>(8, 249), pair<int, int>(16, 65463), pair<int, int>(16, 65464),pair<int, int>(16, 65465), pair<int, int>(16, 65466),
-      pair<int, int>(16, 65467), pair<int, int>(16, 65468), pair<int, int>(16, 65469), pair<int, int>(16, 65470), pair<int, int>(16, 65471),
-      pair<int, int>(9, 503), pair<int, int>(16, 65472), pair<int, int>(16, 65473),pair<int, int>(16, 65474), pair<int, int>(16, 65475),
-      pair<int, int>(16, 65476), pair<int, int>(16, 65477), pair<int, int>(16, 65478), pair<int, int>(16, 65479), pair<int, int>(16, 65480),
-      pair<int, int>(9, 504), pair<int, int>(16, 65481), pair<int, int>(16, 65482), pair<int, int>(16, 65483), pair<int, int>(16, 65484),
-      pair<int, int>(16, 65485), pair<int, int>(16, 65486), pair<int, int>(16, 65487), pair<int, int>(16, 65488), pair<int, int>(16, 65489),
-      pair<int, int>(9, 505), pair<int, int>(16, 65490), pair<int, int>(16, 65491), pair<int, int>(16, 65492), pair<int, int>(16, 65493),
-      pair<int, int>(16, 65494), pair<int, int>(16, 65495), pair<int, int>(16, 65496), pair<int, int>(16, 65497), pair<int, int>(16, 65498),
-      pair<int, int>(9, 506), pair<int, int>(16, 65499), pair<int, int>(16, 65500), pair<int, int>(16, 65501), pair<int, int>(16, 65502),
-      pair<int, int>(16, 65503), pair<int, int>(16, 65504), pair<int, int>(16, 65505), pair<int, int>(16, 65506), pair<int, int>(16, 65507),
-      pair<int, int>(11, 2041), pair<int, int>(16, 65508), pair<int, int>(16, 65509), pair<int, int>(16, 65510), pair<int, int>(16, 65511),
-      pair<int, int>(16, 65512), pair<int, int>(16, 65513), pair<int, int>(16, 65514), pair<int, int>(16, 65515), pair<int, int>(16, 65516),
-      pair<int, int>(14, 16352), pair<int, int>(16, 65517), pair<int, int>(16, 65518), pair<int, int>(16, 65519), pair<int, int>(16, 65520),
-      pair<int, int>(16, 65521), pair<int, int>(16, 65522), pair<int, int>(16, 65523), pair<int, int>(16, 65524), pair<int, int>(16, 65525),
-      pair<int, int>(15, 32707), pair<int, int>(16, 65526), pair<int, int>(16, 65527), pair<int, int>(16, 65528), pair<int, int>(16, 65529),
-      pair<int, int>(16, 65530), pair<int, int>(16, 65531), pair<int, int>(16, 65532), pair<int, int>(16, 65533), pair<int, int>(16, 65534)
+const Code ceof = Code(2, 0);
+const Code czrl = Code(10, 1018);
+const Code cht[]{
+      Code(2, 1), Code(3, 4), Code(4, 10), Code(5, 24), Code(5, 25),
+      Code(6, 56), Code(7, 120), Code(9, 500), Code(10, 1014), Code(12, 4084),
+      Code(4, 11), Code(6, 57), Code(8, 246), Code(9, 501), Code(11, 2038),
+      Code(12, 4085), Code(16, 65416), Code(16, 65417), Code(16, 65418), Code(16, 65419),
+      Code(5, 26), Code(8, 247), Code(10, 1015), Code(12, 4086), Code(15, 32706),
+      Code(16, 65420), Code(16, 65421), Code(16, 65422), Code(16, 65423), Code(16, 65424),
+      Code(5, 27), Code(8, 248), Code(10, 1016), Code(12, 4087), Code(16, 65425),
+      Code(16, 65426), Code(16, 65427), Code(16, 65428), Code(16, 65429), Code(16, 65430),
+      Code(6, 58), Code(9, 502), Code(16, 65431), Code(16, 65432), Code(16, 65433),
+      Code(16, 65434), Code(16, 65435), Code(16, 65436), Code(16, 65437), Code(16, 65438),
+      Code(6, 59), Code(10, 1017), Code(16, 65439), Code(16, 65440), Code(16, 65441),
+      Code(16, 65442), Code(16, 65443), Code(16, 65444), Code(16, 65445), Code(16, 65446),
+      Code(7, 121), Code(11, 2039), Code(16, 65447), Code(16, 65448), Code(16, 65449),
+      Code(16, 65450), Code(16, 65451), Code(16, 65452), Code(16, 65453), Code(16, 65454),
+      Code(7, 122), Code(11, 2040), Code(16, 65455), Code(16, 65456), Code(16, 65457),
+      Code(16, 65458), Code(16, 65459), Code(16, 65460), Code(16, 65461), Code(16, 65462),
+      Code(8, 249), Code(16, 65463), Code(16, 65464),Code(16, 65465), Code(16, 65466),
+      Code(16, 65467), Code(16, 65468), Code(16, 65469), Code(16, 65470), Code(16, 65471),
+      Code(9, 503), Code(16, 65472), Code(16, 65473),Code(16, 65474), Code(16, 65475),
+      Code(16, 65476), Code(16, 65477), Code(16, 65478), Code(16, 65479), Code(16, 65480),
+      Code(9, 504), Code(16, 65481), Code(16, 65482), Code(16, 65483), Code(16, 65484),
+      Code(16, 65485), Code(16, 65486), Code(16, 65487), Code(16, 65488), Code(16, 65489),
+      Code(9, 505), Code(16, 65490), Code(16, 65491), Code(16, 65492), Code(16, 65493),
+      Code(16, 65494), Code(16, 65495), Code(16, 65496), Code(16, 65497), Code(16, 65498),
+      Code(9, 506), Code(16, 65499), Code(16, 65500), Code(16, 65501), Code(16, 65502),
+      Code(16, 65503), Code(16, 65504), Code(16, 65505), Code(16, 65506), Code(16, 65507),
+      Code(11, 2041), Code(16, 65508), Code(16, 65509), Code(16, 65510), Code(16, 65511),
+      Code(16, 65512), Code(16, 65513), Code(16, 65514), Code(16, 65515), Code(16, 65516),
+      Code(14, 16352), Code(16, 65517), Code(16, 65518), Code(16, 65519), Code(16, 65520),
+      Code(16, 65521), Code(16, 65522), Code(16, 65523), Code(16, 65524), Code(16, 65525),
+      Code(15, 32707), Code(16, 65526), Code(16, 65527), Code(16, 65528), Code(16, 65529),
+      Code(16, 65530), Code(16, 65531), Code(16, 65532), Code(16, 65533), Code(16, 65534)
 };
 
 

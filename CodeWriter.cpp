@@ -1,35 +1,20 @@
 #include "CodeWriter.h"
 
 
-void displayCode(pair<int, int> code){
-    int buf = 0;
-    int val = code.second;
-    for(int i = 0; i < code.first; i++){
-        buf = (buf<<1) ^ (val & 0x01);
-        val = val>>1;
-    }
-    for(int i = 0; i < code.first; i++){
-        cout<<(buf&0x01);
-        buf = buf>>1;
-    }
-    cout<<" ";
-}
 
 CodeWriter::CodeWriter(ostream& out): out(out), value(0), size(0){}
-void CodeWriter::writeCode(pair<int, int> code){
-    if(code.first + size >= 8){
-        int buf = 0;
+void CodeWriter::writeCode(Code code){
+    if(code.length + size >= 8){
         int val = 0;
-        int to = code.first;
-        for(int i = 0; i < code.first; i++){
-            val = (val<<1) ^ (code.second & 0x01);
-            code.second = code.second>>1;
+        for(int i = 0; i < code.length; i++){
+            val = (val<<1) ^ (code.value & 0x01);
+            code.value = code.value>>1;
         }
-        while(code.first + size >= 8){
+        while(code.length + size >= 8){
             for(int i = size; i < 8; i++){
                 value = (value<<1) ^ (val & 0x01);
                 val = val>>1;
-                code.first--;
+                code.length--;
             }
 
             out.write((char*)&value, 1);
@@ -41,14 +26,14 @@ void CodeWriter::writeCode(pair<int, int> code){
             }
             value = 0; size = 0;
         }
-        code.second = 0;
-        for(int i = 0; i < code.first; i++){
-            code.second= (code.second<<1) ^ (val & 0x01);
+        code.value = 0;
+        for(int i = 0; i < code.length; i++){
+            code.value = (code.value<<1) ^ (val & 0x01);
             val = val>>1;
         }
     }
-    value = (value<<code.first) ^ code.second;
-    size += code.first;
+    value = (value<<code.length) ^ code.value;
+    size += code.length;
 }
 
 void CodeWriter::flush(){

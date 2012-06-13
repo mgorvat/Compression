@@ -8,6 +8,7 @@
 #include "YUVPixel.h"
 #include "JPEG.h"
 #include "utils.h"
+#include "HuffmanTree.h"
 #include "HuffmanTable.h"
 
 using namespace std;
@@ -21,6 +22,11 @@ int main(){
     JPEG jpg(&set);
     jpg.writeJPEG("test.jpg");
 
+    int n = 3;
+    int ns[]{1,1,1};
+    int vs[]{1,2,3};
+    HuffmanTable ht(n, ns, vs);
+    HuffmanTree htr(&ht);
 
     return 0;
 }

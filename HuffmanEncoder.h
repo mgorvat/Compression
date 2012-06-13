@@ -3,7 +3,9 @@
 
 #include <vector>
 #include <map>
-#include <utility>
+
+
+#include "Code.h"
 
 using namespace std;
 
@@ -24,7 +26,7 @@ class HuffmanEncoder{
                     vector. Number of elements in values and codes must be equal.
 
         */
-        HuffmanEncoder(vector<T>* values, vector<pair<int, int> >* codes){
+        HuffmanEncoder(vector<T>* values, vector<Code>* codes){
             for(int i = 0; i < (int)values->size(); i++){
                 mp[(*values)[i]] = (*codes)[i];
             }
@@ -33,11 +35,11 @@ class HuffmanEncoder{
             Reutrn code, associated with element.
             input:
                 val — value, code of which need to be getted
-            outpit:
+            output:
                 Code of velue as pair<int, int>, where first int is code length, and second is it's numeric value
         */
-        pair<int, int> getCode(T* val){return mp[*val];}
+        Code getCode(T* val){return mp[*val];}
     private:
-        map<T, pair<int, int> > mp;//Here class store values
+        map<T, Code> mp;//Here class store values
 };
 #endif // HuffmanEncoder_H_INCLUDED

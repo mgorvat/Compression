@@ -2,7 +2,9 @@
 #define CODEWRITER_H_INCLUDED
 
 #include <fstream>
-#include <iostream>
+
+
+#include "Code.h"
 
 
 using namespace std;
@@ -10,7 +12,7 @@ using namespace std;
 class CodeWriter{
     public:
         CodeWriter(ostream& out);
-        void writeCode(pair <int, int>);
+        void writeCode(Code);
         void flush();
     private:
         ostream &out;

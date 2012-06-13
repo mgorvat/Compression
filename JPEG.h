@@ -66,7 +66,7 @@ namespace Compression{
             void writeSOF0Marker(ofstream* out, char precision, char numberOfComponents);
             char* generateSOF0ComponentInfo(char id, char verticalSampling,
                 char horizontalSampling, char quantTableIndex);
-            void writeDHTMarker(ofstream* out, char htNumber, char htType, vector<pair<pair<int, int>, int> >* codes);
+            void writeDHTMarker(ofstream* out, char htNumber, char htType, vector<pair<Code, int> >* codes);
             void writeSOSMarker(ofstream* out, vector<ComponentInfo>* components);
             int encodeMatrix(float* mtr, CodeWriter* writer, ComponentsEncoders* encoders, int prevDc);
             void encodeDC(int numb, CodeWriter* writer, HuffmanEncoder<int>* DCcoder);
