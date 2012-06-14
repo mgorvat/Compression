@@ -21,13 +21,6 @@ int main(){
     RGBPixelSet set = bmp->getRGBPixelSet();
     JPEG jpg(&set);
     jpg.writeJPEG("test.jpg");
-
-    int n = 3;
-    int ns[]{1,1,1};
-    int vs[]{1,2,3};
-    HuffmanTable ht(n, ns, vs);
-    HuffmanTree htr(&ht);
-
     return 0;
 }
 

@@ -4,7 +4,6 @@
 #include <vector>
 #include <map>
 
-
 #include "Code.h"
 
 using namespace std;
