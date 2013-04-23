@@ -17,10 +17,10 @@ using namespace Compression;
 
 int main(){
     BMP* bmp;
-    bmp = BMP::readImage("test.bmp");
+    bmp = BMP::readImage("lena.bmp");
     RGBPixelSet set = bmp->getRGBPixelSet();
     JPEG jpg(&set);
-    jpg.writeJPEG("test.jpg");
+    jpg.writeJPEG("lena.jpg");
     return 0;
 }
 
